@@ -92,6 +92,9 @@ tags
 *.ttf
 *.otf
 
+# Make an exeption for jpg files in the media folder
+!media/*.jpg
+
 # Things Travis sees
 /.vs
 id_rsa_*
