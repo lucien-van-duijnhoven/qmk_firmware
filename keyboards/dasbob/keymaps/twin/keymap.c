@@ -71,21 +71,21 @@ typedef struct {
 } td_tap_t;
 
 // Tap dance functions
-td_state_t cur_dance(qk_tap_dance_state_t *state);
+td_state_t cur_dance(tap_dance_state_t *state);
 
-void shift_alt_finished(qk_tap_dance_state_t *state, void *user_data);
-void shift_alt_reset(qk_tap_dance_state_t *state, void *user_data);
+void shift_alt_finished(tap_dance_state_t *state, void *user_data);
+void shift_alt_reset(tap_dance_state_t *state, void *user_data);
 
-void control_super_finished(qk_tap_dance_state_t *state, void *user_data);
-void control_super_reset(qk_tap_dance_state_t *state, void *user_data);
+void control_super_finished(tap_dance_state_t *state, void *user_data);
+void control_super_reset(tap_dance_state_t *state, void *user_data);
 
-void reset_on_tap_4(qk_tap_dance_state_t *state, void *user_data) {
+void reset_on_tap_4(tap_dance_state_t *state, void *user_data) {
     if (state->count >= 4) {
         reset_tap_dance(state);
     }
 }
 
-td_state_t cur_dance(qk_tap_dance_state_t *state) {
+td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 1) {
       if (state->interrupted && !state->pressed) return TD_SINGLE_TAP_INTERRUPTED;
       else if (state->interrupted && state->pressed) return TD_SINGLE_HOLD_INTERRUPTED;
@@ -112,7 +112,7 @@ static td_tap_t shift_alt_state = {
     .state = TD_NONE
 };
 
-void shift_alt_finished(qk_tap_dance_state_t *state, void *user_data) {
+void shift_alt_finished(tap_dance_state_t *state, void *user_data) {
     shift_alt_state.state = cur_dance(state);
     switch (shift_alt_state.state) {
         case TD_SINGLE_TAP_INTERRUPTED:
@@ -132,7 +132,7 @@ void shift_alt_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void shift_alt_reset(qk_tap_dance_state_t *state, void *user_data) {
+void shift_alt_reset(tap_dance_state_t *state, void *user_data) {
     switch (shift_alt_state.state) {
         case TD_SINGLE_HOLD_INTERRUPTED:
         case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
@@ -152,7 +152,7 @@ static td_tap_t control_super_state = {
     .state = TD_NONE
 };
 
-void control_super_finished(qk_tap_dance_state_t *state, void *user_data) {
+void control_super_finished(tap_dance_state_t *state, void *user_data) {
     control_super_state.state = cur_dance(state);
     switch (control_super_state.state) {
         case TD_SINGLE_TAP_INTERRUPTED:
@@ -172,7 +172,7 @@ void control_super_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void control_super_reset(qk_tap_dance_state_t *state, void *user_data) {
+void control_super_reset(tap_dance_state_t *state, void *user_data) {
     switch (control_super_state.state) {
         case TD_SINGLE_HOLD_INTERRUPTED:
         case TD_SINGLE_HOLD: unregister_code(KC_LCTL); break;
@@ -192,7 +192,7 @@ static td_tap_t shift_control_state = {
     .state = TD_NONE
 };
 
-void shift_control_finished(qk_tap_dance_state_t *state, void *user_data) {
+void shift_control_finished(tap_dance_state_t *state, void *user_data) {
     shift_control_state.state = cur_dance(state);
     switch (shift_control_state.state) {
         case TD_SINGLE_TAP_INTERRUPTED:
@@ -212,7 +212,7 @@ void shift_control_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void shift_control_reset(qk_tap_dance_state_t *state, void *user_data) {
+void shift_control_reset(tap_dance_state_t *state, void *user_data) {
     switch (shift_control_state.state) {
         case TD_SINGLE_HOLD_INTERRUPTED:
         case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
@@ -227,7 +227,7 @@ void shift_control_reset(qk_tap_dance_state_t *state, void *user_data) {
 }
 
 // Tap dance registration
-qk_tap_dance_action_t tap_dance_actions[] = {
+tap_dance_action_t tap_dance_actions[] = {
     [SHIFT_ALT] = ACTION_TAP_DANCE_FN_ADVANCED(reset_on_tap_4, shift_alt_finished, shift_alt_reset),
     [CONTROL_SUPER] = ACTION_TAP_DANCE_FN_ADVANCED(reset_on_tap_4, control_super_finished, control_super_reset),
     [SHIFT_CONTROL] = ACTION_TAP_DANCE_FN_ADVANCED(reset_on_tap_4, shift_control_finished, shift_control_reset)
