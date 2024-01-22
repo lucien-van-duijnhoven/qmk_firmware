@@ -71,21 +71,21 @@ typedef struct {
 } td_tap_t;
 
 // Tap dance functions
-td_state_t cur_dance(qk_tap_dance_state_t *state);
+td_state_t cur_dance(tap_dance_state_t *state);
 
-void shift_alt_finished(qk_tap_dance_state_t *state, void *user_data);
-void shift_alt_reset(qk_tap_dance_state_t *state, void *user_data);
+void shift_alt_finished(tap_dance_state_t *state, void *user_data);
+void shift_alt_reset(tap_dance_state_t *state, void *user_data);
 
-void control_super_finished(qk_tap_dance_state_t *state, void *user_data);
-void control_super_reset(qk_tap_dance_state_t *state, void *user_data);
+void control_super_finished(tap_dance_state_t *state, void *user_data);
+void control_super_reset(tap_dance_state_t *state, void *user_data);
 
-void reset_on_tap_4(qk_tap_dance_state_t *state, void *user_data) {
+void reset_on_tap_4(tap_dance_state_t *state, void *user_data) {
     if (state->count >= 4) {
         reset_tap_dance(state);
     }
 }
 
-td_state_t cur_dance(qk_tap_dance_state_t *state) {
+td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 1) {
       if (state->interrupted && !state->pressed) return TD_SINGLE_TAP_INTERRUPTED;
       else if (state->interrupted && state->pressed) return TD_SINGLE_HOLD_INTERRUPTED;
@@ -112,7 +112,7 @@ static td_tap_t shift_alt_state = {
     .state = TD_NONE
 };
 
-void shift_alt_finished(qk_tap_dance_state_t *state, void *user_data) {
+void shift_alt_finished(tap_dance_state_t *state, void *user_data) {
     shift_alt_state.state = cur_dance(state);
     switch (shift_alt_state.state) {
         case TD_SINGLE_TAP_INTERRUPTED:
@@ -132,7 +132,7 @@ void shift_alt_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void shift_alt_reset(qk_tap_dance_state_t *state, void *user_data) {
+void shift_alt_reset(tap_dance_state_t *state, void *user_data) {
     switch (shift_alt_state.state) {
         case TD_SINGLE_HOLD_INTERRUPTED:
         case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
@@ -152,7 +152,7 @@ static td_tap_t control_super_state = {
     .state = TD_NONE
 };
 
-void control_super_finished(qk_tap_dance_state_t *state, void *user_data) {
+void control_super_finished(tap_dance_state_t *state, void *user_data) {
     control_super_state.state = cur_dance(state);
     switch (control_super_state.state) {
         case TD_SINGLE_TAP_INTERRUPTED:
@@ -172,7 +172,7 @@ void control_super_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void control_super_reset(qk_tap_dance_state_t *state, void *user_data) {
+void control_super_reset(tap_dance_state_t *state, void *user_data) {
     switch (control_super_state.state) {
         case TD_SINGLE_HOLD_INTERRUPTED:
         case TD_SINGLE_HOLD: unregister_code(KC_LCTL); break;
@@ -192,7 +192,7 @@ static td_tap_t shift_control_state = {
     .state = TD_NONE
 };
 
-void shift_control_finished(qk_tap_dance_state_t *state, void *user_data) {
+void shift_control_finished(tap_dance_state_t *state, void *user_data) {
     shift_control_state.state = cur_dance(state);
     switch (shift_control_state.state) {
         case TD_SINGLE_TAP_INTERRUPTED:
@@ -212,7 +212,7 @@ void shift_control_finished(qk_tap_dance_state_t *state, void *user_data) {
     }
 }
 
-void shift_control_reset(qk_tap_dance_state_t *state, void *user_data) {
+void shift_control_reset(tap_dance_state_t *state, void *user_data) {
     switch (shift_control_state.state) {
         case TD_SINGLE_HOLD_INTERRUPTED:
         case TD_SINGLE_HOLD: unregister_code(KC_LSFT); break;
@@ -227,51 +227,28 @@ void shift_control_reset(qk_tap_dance_state_t *state, void *user_data) {
 }
 
 // Tap dance registration
-qk_tap_dance_action_t tap_dance_actions[] = {
+tap_dance_action_t tap_dance_actions[] = {
     [SHIFT_ALT] = ACTION_TAP_DANCE_FN_ADVANCED(reset_on_tap_4, shift_alt_finished, shift_alt_reset),
     [CONTROL_SUPER] = ACTION_TAP_DANCE_FN_ADVANCED(reset_on_tap_4, control_super_finished, control_super_reset),
     [SHIFT_CONTROL] = ACTION_TAP_DANCE_FN_ADVANCED(reset_on_tap_4, shift_control_finished, shift_control_reset)
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-     /*
-      * ┌───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┐
-      * │ Q │ W │ E │ R │ T │       │ Y │ U │ I │ O │ P │
-      * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-      * │ A │ S │ D │ F │ G │       │ H │ J │ K │ L │ ; │
-      * ├───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┤
-      * │ Z │ X │ C │ V │ B │       │ N │ M │ , │ . │ / │
-      * └───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┘
-      *           ┌───┐                   ┌───┐
-      *           │DEL├───┐           ┌───┤ESC│
-      *           └───┤SPC├───┐   ┌───┤BSP├───┘
-      *               └───│LOW│   │RSE├───┘
-      *                   └───┘   └───┘
-      */
-
-
-    // [_QWERTY] = LAYOUT_split_3x5_3(
-    //     KC_Q,    KC_W,              KC_E,            KC_R,            KC_T,               KC_Y,         KC_U,              KC_I,              KC_O,           KC_P,
-    //     KC_A,    RALT_T(KC_S),      LCTL_T(KC_D),    LSFT_T(KC_F),    KC_G,               KC_H,         LSFT_T(KC_J),      LCTL_T(KC_K),      RALT_T(KC_L),   KC_SCLN,
-    //     KC_Z,    KC_X,              KC_C,            KC_V,            KC_B,               KC_N,         KC_M,              KC_COMM,           KC_DOT,         KC_SLSH,
-    //                                 KC_DEL,          KC_SPC,          MO(1),              MO(2),        KC_BSPC,           KC_ESC
-    // ),
-
-    // [_LOWER] = LAYOUT_split_3x5_3(
-    //    KC_1,     KC_2,              KC_3,            KC_4,            KC_5,               KC_6,         KC_7,             KC_8,            KC_9,              KC_0,
-    //    CK_RST,  RALT_T(XXXXXXX),   LCTL_T(XXXXXXX), LSFT_T(XXXXXXX), XXXXXXX,           KC_MINS,      LSFT_T(KC_EQL),   LCTL_T(KC_GRV),  RALT_T(KC_QUOT),    KC_BSLS,
-    //    CK_TOGG,  CK_UP,           CK_DOWN,         LCTL(KC_C),      LCTL(KC_V),         KC_TAB,      XXXXXXX,          XXXXXXX,         XXXXXXX,           XXXXXXX,
-    //                                 KC_TRNS,         KC_TRNS,         KC_TAB,             KC_ENT,       KC_TRNS,          KC_TRNS
-    // ),
-
-    // [_RAISE] = LAYOUT_split_3x5_3(
-    //     KC_ESC,   KC_UP,           XXXXXXX,         XXXXXXX,         CK_TOGG,             KC_NUM_LOCK,  KC_KP_7,          KC_KP_8,         KC_KP_9,           KC_KP_MINUS,
-    //     KC_LEFT,  RALT_T(KC_DOWN), LCTL_T(KC_RGHT), LSFT_T(XXXXXXX), KC_LGUI,             XXXXXXX,      LSFT_T(KC_KP_4),  LCTL_T(KC_KP_5), RALT_T(KC_KP_6),   KC_KP_PLUS,
-    //     KC_MPRV,  KC_MSTP,         KC_MPLY,         KC_MNXT,         KC_PSCR,             XXXXXXX,      KC_KP_1,          KC_KP_2,         KC_KP_3,           KC_KP_0,
-    //                                KC_TRNS,         KC_TRNS,         KC_TAB,              KC_ENT,       KC_TRNS,          KC_TRNS
-    // ),
-
     [0] = LAYOUT_split_3x5_3(
+        KC_F21, KC_F22, KC_F23, KC_F24, KC_ESC,
+        TO(1), TO(1), TO(1), TO(1), TO(1), 
+
+        KC_F17, KC_F18, KC_F19, KC_F20, KC_ESC,
+        TO(1), TO(1), TO(1), TO(1), TO(1), 
+
+        KC_F13, KC_F14, KC_F15, KC_F16, KC_ESC,
+        TO(1), TO(1), TO(1), TO(1), TO(1), 
+
+        KC_LEFT_SHIFT, KC_LEFT_CTRL, KC_LEFT_ALT,
+        TO(1), TO(1), TO(1)
+    ),
+    
+    [1] = LAYOUT_split_3x5_3(
         KC_Q, KC_W, KC_E, KC_R, KC_T,
         KC_Y, KC_U, KC_I, KC_O,KC_BSPC,
 
@@ -281,11 +258,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_Z, KC_X, KC_C, KC_V, KC_B,
         KC_N,KC_M,KC_COMM,KC_DOT,KC_SLASH,
 
-        KC_SPACE, OSL(2), TD(CONTROL_SUPER),
-        RESET, TD(SHIFT_ALT), OSL(1)
+        TD(CONTROL_SUPER), KC_SPACE, OSL(3), 
+        OSL(4), TD(SHIFT_ALT), OSL(2)
     ),
 
-    [1] = LAYOUT_split_3x5_3(
+    [2] = LAYOUT_split_3x5_3(
         KC_ESCAPE, KC_PLUS, KC_EQUAL, KC_MINS, KC_ASTERISK,
         KC_UNDS,KC_DOUBLE_QUOTE,KC_QUOTE,KC_GRAVE,KC_BSPC,
 
@@ -295,12 +272,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_P1, KC_P2, KC_P3, KC_P4, KC_P5,    
         KC_P6,KC_P7,KC_P8,KC_P9,KC_P0,
 
-        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
-        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
+        KC_TRANSPARENT, KC_TRANSPARENT, RESET,
+        RESET, KC_TRANSPARENT, RESET
     ),
 
-
-    [2] = LAYOUT_split_3x5_3(
+    [3] = LAYOUT_split_3x5_3(
         KC_ESC, KC_NO, KC_NUM, KC_TILD,  KC_F11,   
         KC_F12,KC_CIRC,KC_PERCENT,KC_DEL,KC_BSPC,
 
@@ -314,18 +290,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT
     ),
 
-    // [3] = LAYOUT_split_3x5_3(
-    //     KC_ESC, KC_INS, KC_UP, KC_PAUS, KC_ASTG,
-    //     KC_BSPC, KC_F24, KC_F23, KC_F22, KC_F21, 
+    [4] = LAYOUT_split_3x5_3(
+        KC_F21, KC_F22, KC_F23, KC_F24, KC_ESC,
+        KC_AUDIO_MUTE, KC_MEDIA_PREV_TRACK, KC_MEDIA_PLAY_PAUSE, KC_MEDIA_NEXT_TRACK, KC_PRINT_SCREEN,
 
-    //     KC_PSCR, KC_LEFT, KC_DOWN, KC_RIGHT, KC_CAPS,
-    //     KC_ENTER, KC_F20, KC_F19, KC_F18, KC_F17, 
+        KC_F17, KC_F18, KC_F19, KC_F20, KC_ESC,
+        KC_AUDIO_VOL_UP, KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, 
 
-    //     KC_DEL, KC_HELP, KC_EXEC, KC_FIND, KC_NUM,
-    //     KC_NO, KC_F16, KC_F15, KC_F14, KC_F13, 
+        KC_F13, KC_F14, KC_F15, KC_F16, KC_ESC,
+        KC_AUDIO_VOL_DOWN, KC_HOME, KC_PAGE_DOWN, KC_PAGE_UP, KC_END,  
 
-    //     LLOCK, KC_TRANSPARENT,
-    //     RESET, KC_TRANSPARENT
-    // )
+        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,
+        TO(0), KC_TRANSPARENT, KC_TRANSPARENT
+    ),
 };
 
